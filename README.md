@@ -1,5 +1,7 @@
 # Rust development with Nix and Podman
 
+This repository explores **devshells with isolation**: Nix still declares and pins the Rust development tools, but instead of exposing them directly through `nix develop`, it packages them into an OCI devcontainer run by rootless Podman (or an equivalently hardened runtime). Cargo build scripts, procedural macros, tests, and AI agents then execute inside the container boundary, while sandboxed `nix build` remains the authoritative build path.
+
 This example keeps interactive Rust development separate from authoritative builds:
 
 ```text
