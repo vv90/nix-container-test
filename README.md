@@ -43,20 +43,21 @@ The container does not contain Nix. Nix runs on the host and copies the required
 
 OCI images are not tied to Podman. Docker can load and run this image too. This example uses rootless Podman because its daemonless model and `keep-id` user mapping fit the intended security boundary. Docker has rootless and user-namespace features, but they are configured differently and should not be assumed to provide identical isolation by default.
 
-## Why build a tailored image?
+## Why build the devcontainer with Nix?
 
-A generic Rust development image is convenient, but it usually contains tools and behaviors that this repository does not need. This image declares its contents in `flake.nix` and adds packages only when the workflow requires them.
+The container boundary provides the isolation; building the image with Nix makes the development environment declarative and reproducible.
 
-That provides:
+The same pinned nixpkgs revision supplies Rust, Cargo, the native toolchain, Codex, and the utilities required by Zed. This provides:
 
-- a pinned toolchain and userspace from `flake.lock`;
-- a smaller and more understandable set of available programs;
-- fewer unnecessary interpreters, package managers, and administrative tools for untrusted code to use;
-- explicit user, directory, certificate, linker, editor, and agent requirements;
-- reproducible image construction instead of mutable setup performed after startup;
-- a reviewable record of why each tool is present.
+- a toolchain and userspace pinned by `flake.lock`;
+- an explicit, reviewable list of installed programs;
+- reproducible image construction without mutable startup installation;
+- one Nix definition for both the development image and authoritative application build;
+- the ability to add project-specific native dependencies deliberately.
 
-The goal is not to make the container tiny at all costs. Codex, Rust tooling, Git, a compiler toolchain, and Zed's bootstrap utilities are intentionally included. The goal is a minimal but practical environment whose contents match this workflow rather than a general-purpose Linux distribution.
+The image is intentionally minimal but practical rather than tiny. It contains the tools required for this workflow, but avoids becoming a general-purpose Linux environment by default.
+
+A carefully maintained generic Rust image pinned by digest can also be a reasonable base. The Nix-built image is useful here because the repository already uses Nix and benefits from keeping its development and authoritative build inputs under the same versioned configuration.
 
 ## Build the development image
 
