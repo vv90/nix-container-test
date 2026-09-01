@@ -20,54 +20,67 @@
       '';
     in
     {
-      packages.${system}.default = pkgs.dockerTools.buildLayeredImage {
-        name = "rust-dev";
-        tag = "latest";
+      packages.${system} = {
+        default = pkgs.rustPlatform.buildRustPackage {
+          pname = "workspace";
+          version = "0.1.0";
 
-        contents = with pkgs; [
-          bashInteractive
-          coreutils
+          src = ./.;
 
-          gzip
-          curl
-          which
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+          };
+        };
 
-          git
-          cacert
+        devImage = pkgs.dockerTools.buildLayeredImage {
+          name = "rust-dev";
+          tag = "latest";
 
-          rustc
-          cargo
-          rust-analyzer
-          rustfmt
-          clippy
+          contents = with pkgs; [
+            bashInteractive
+            coreutils
 
-          stdenv.cc
+            gzip
+            curl
+            which
 
-          passwd
-          group
+            git
+            cacert
 
-          codex
-        ];
+            rustc
+            cargo
+            rust-analyzer
+            rustfmt
+            clippy
 
-        extraCommands = ''
-          mkdir -p home/dev/.cache
-          mkdir -p workspaces
-        '';
+            stdenv.cc
 
-        fakeRootCommands = ''
-          chown -R 1000:1000 home/dev
-          chown -R 1000:1000 workspaces
-        '';
+            passwd
+            group
 
-        config = {
-          User = "dev";
-          WorkingDir = "/workspaces";
-
-          Env = [
-            "HOME=/home/dev"
+            codex
           ];
 
-          Cmd = [ "${pkgs.bashInteractive}/bin/bash" ];
+          extraCommands = ''
+            mkdir -p home/dev/.cache
+            mkdir -p workspaces
+          '';
+
+          fakeRootCommands = ''
+            chown -R 1000:1000 home/dev
+            chown -R 1000:1000 workspaces
+          '';
+
+          config = {
+            User = "dev";
+            WorkingDir = "/workspaces";
+
+            Env = [
+              "HOME=/home/dev"
+            ];
+
+            Cmd = [ "${pkgs.bashInteractive}/bin/bash" ];
+          };
         };
       };
     };
