@@ -1,0 +1,32 @@
+{
+  "name": "rust-dev",
+
+  "image": "localhost/rust-dev:latest",
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "mounts": [
+    "source=rust-cargo-cache,target=/home/dev/.cargo,type=volume",
+    "source=rust-target-cache,target=/home/dev/.cache/cargo-target,type=volume",
+  ],
+
+  "containerEnv": {
+    "CARGO_TARGET_DIR": "/home/dev/.cache/cargo-target/target",
+  },
+
+  "runArgs": [
+    "--userns=keep-id:uid=1000,gid=1000",
+
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+
+    "--pids-limit=2048",
+
+    "--memory=16g",
+    "--memory-reservation=12g",
+    "--memory-swap=20g",
+
+    "--tmpfs=/tmp:rw,nosuid,nodev,size=2g,mode=1777",
+  ],
+}
